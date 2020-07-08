@@ -1,3 +1,4 @@
+var bodyParser = require("body-parser");
 var express = require("express");
 var expessHandlebars = require("express-handlebars");
 var logger = require("morgan");
@@ -5,23 +6,28 @@ var mongoose = require("mongoose");
 var cheerio = require("cheerio");
 var axios = require("axios");
 
-var PORT = 3000;
 
-// Require all models
-var db = require("./models");
+var PORT = process.env.PORT|| 3000;
 
 // Initialize Express
 var app = express();
 
-// Configure middleware
-
 // Use morgan logger for logging requests
 app.use(logger("dev"));
+
 // Parse request body as JSON
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 // Make public a static folder
 app.use(express.static("public"));
+
+//Handlebars set up
+app.set('views', './views')
+app.engine("handlebars",expessHandlebars({defaultLayout: "main"}));
+app.set("view engine", "handlebars")
+
+// Require all models
+var db = require("./models");
 
 // Connect to the Mongo DB
 mongoose.connect("mongodb://localhost/populate", { useNewUrlParser: true });
@@ -105,6 +111,7 @@ app.get("/populated", function(req, res) {
 });
 
 // Start the server
+
 app.listen(PORT, function() {
   console.log("App running on port " + PORT + "!");
 });
